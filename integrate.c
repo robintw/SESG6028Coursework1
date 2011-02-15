@@ -1,10 +1,44 @@
 #include<stdio.h>
 #include<math.h>
 
+
+/* The constant M_PI isn't included in the C89 standard, so we define it here - checking first
+to see if it has already been defined (in case the code is compiled with a different C standard */
+#ifndef M_PI
+#    define M_PI 3.1415926535897931
+#endif
+
 double f1(double x)
 {
 	double res;
+	
+	res = 5*pow(x, 3) + 4 * pow(x, 2) + 3*x + 2;
+	
+	return res;
+}
+
+double f2(double x)
+{
+	double res;
+	
 	res = sin(x);
+	
+	return res;
+}
+
+double f3(double x)
+{
+	double res;
+	
+	if (x <= 0)
+	{
+		res = x;
+	}
+	else
+	{
+		res = sin(x);
+	}
+	
 	return res;
 }
 
@@ -41,7 +75,10 @@ double integrate(double a, double b, int n)
 /* The main function */
 int main(void)
 {	
-	printf("%f\n", integrate(0, 1, 1000));
+	printf("Using n = 1000\n");
+	printf("Integral of f1 = %f\n", integrate(-1, 3, 1000));
+	printf("Integral of f2 = %f\n", integrate(0, 2 * M_PI, 1000));
+	printf("Integral of f3 = %f\n", integrate(-1 * M_PI, M_PI, 1000));
 
 	return 0;
 }
