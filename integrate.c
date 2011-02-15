@@ -47,7 +47,7 @@ x: an array of x-values of the function
 y: an array of the corresponding y-values for each x-value
 n: the number of iterations to do
 */
-double integrate(double a, double b, int n)
+double integrate( double (*fn)(double), double a, double b, int n)
 {	
 	/* Declare variables
 	(All are initialised to zero as C variables will otherwise be initialised to
@@ -66,7 +66,7 @@ double integrate(double a, double b, int n)
 	{
 		/* Calculate the equation given on the Coursework 1 instruction sheet
 		(This is Simpson's rule) */
-		sum += h * ( ( sin(curr_x) + sin(curr_x - h) ) / 2);
+		sum += h * ( ( (*fn)(curr_x) + (*fn)(curr_x - h) ) / 2);
 	}
 	
 	return sum;
@@ -76,9 +76,9 @@ double integrate(double a, double b, int n)
 int main(void)
 {	
 	printf("Using n = 1000\n");
-	printf("Integral of f1 = %f\n", integrate(-1, 3, 1000));
-	printf("Integral of f2 = %f\n", integrate(0, 2 * M_PI, 1000));
-	printf("Integral of f3 = %f\n", integrate(-1 * M_PI, M_PI, 1000));
+	printf("Integral of f1 = %f\n", integrate((double (*)(double))f1, -1, 3, 1000));
+	printf("Integral of f2 = %f\n", integrate((double (*)(double))f2, 0, 2 * M_PI, 1000));
+	printf("Integral of f3 = %f\n", integrate((double (*)(double))f3, -1 * M_PI, M_PI, 1000));
 
 	return 0;
 }
