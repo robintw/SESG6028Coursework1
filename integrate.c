@@ -68,8 +68,7 @@ double integrate( double (*fn)(double), double a, double b, int n)
 	Stop when we get to b */
 	for (curr_x = a; curr_x <= b; curr_x += h)
 	{
-		/* Calculate the equation given on the Coursework 1 instruction sheet
-		(This is Simpson's rule) */
+		/* Calculate the equation given on the Coursework 1 instruction sheet */
 		sum += h * ( ( (*fn)(curr_x) + (*fn)(curr_x - h) ) / 2);
 	}
 	
