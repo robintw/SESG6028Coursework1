@@ -67,9 +67,13 @@ double integrate( double (*fn)(double), double a, double b, int n)
 	h = (b - a) / (double) n;
 
 
-	/* Go from a to b in steps of h
-	Stop when we get to b */
+	#pragma omp parallel default(none), private(i, curr_x), shared(h, a, b, fn, n, sum)
+	/* Go from a to b in steps of h and stop when we get to b
+	We do this using a standard integer loop, and then calculating what x value
+	we are at inside the loop. This means that the loop variable is an int, which is
+	more efficient. */
 	
+	#pragma omp for reduction(+:sum)
 	for (i = 0; i < n; i++)
 	{
 		curr_x = a + i * h;
