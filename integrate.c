@@ -1,6 +1,6 @@
 #include<stdio.h>
 #include<math.h>
-
+#include<omp.h>
 
 /* The constant M_PI isn't included in the C89 standard, so we define it here - checking first
 to see if it has already been defined (in case the code is compiled with a different C standard */
@@ -49,12 +49,16 @@ n: the number of iterations to do
 */
 double integrate( double (*fn)(double), double a, double b, int n)
 {	
+	double tstart;
+	double tend;
 	/* Declare variables
 	(All are initialised to zero as C variables will otherwise be initialised to
 	whatever happens to be in that memory location) */
 	double h = 0; /* The x-step value */
 	double curr_x = 0; /* The current x value used in the loop */
 	double sum = 0; /* Used to hold the sum as we go from i = a to b in steps of h */
+	
+	tstart = omp_get_wtime();
 	
 	/* Calculate h (the distance between each x value) given n (the number of bits to split the
 	input range into*/
@@ -68,6 +72,10 @@ double integrate( double (*fn)(double), double a, double b, int n)
 		(This is Simpson's rule) */
 		sum += h * ( ( (*fn)(curr_x) + (*fn)(curr_x - h) ) / 2);
 	}
+	
+	tend = omp_get_wtime();
+	
+	printf("Time taken: %f\n", tend-tstart);
 	
 	return sum;
 }
