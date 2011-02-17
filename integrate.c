@@ -57,17 +57,22 @@ double integrate( double (*fn)(double), double a, double b, int n)
 	double h = 0; /* The x-step value */
 	double curr_x = 0; /* The current x value used in the loop */
 	double sum = 0; /* Used to hold the sum as we go from i = a to b in steps of h */
+	int i;
 	
 	tstart = omp_get_wtime();
+	
 	
 	/* Calculate h (the distance between each x value) given n (the number of bits to split the
 	input range into*/
 	h = (b - a) / (double) n;
 
+
 	/* Go from a to b in steps of h
 	Stop when we get to b */
-	for (curr_x = a; curr_x <= b; curr_x += h)
+	
+	for (i = 0; i < n; i++)
 	{
+		curr_x = a + i * h;
 		/* Calculate the equation given on the Coursework 1 instruction sheet */
 		sum += h * ( ( (*fn)(curr_x) + (*fn)(curr_x - h) ) / 2);
 	}
