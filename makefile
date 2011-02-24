@@ -1,2 +1,2 @@
 all:
-	gcc -W -Wall -pedantic -std=c89 -lm -fopenmp -o integrate integrate.c
+	gcc -W -Wall -pedantic -std=c89 -lm -fopenmp -o integrate -I. timer.c integrate.c
