@@ -1,5 +1,6 @@
 #include<stdio.h>
 #include<math.h>
+#include<timer.h>
 #include<omp.h>
 
 /* The constant M_PI isn't included in the C89 standard, so we define it here - checking first
@@ -47,7 +48,7 @@ x: an array of x-values of the function
 y: an array of the corresponding y-values for each x-value
 n: the number of iterations to do
 */
-double integrate( double (*fn)(double), double a, double b, int n)
+double integrate( double (*fn)(double), double a, double b, int n, int t)
 {	
 	double tstart;
 	double tend;
@@ -59,15 +60,14 @@ double integrate( double (*fn)(double), double a, double b, int n)
 	double sum = 0; /* Used to hold the sum as we go from i = a to b in steps of h */
 	int i;
 	
-	tstart = omp_get_wtime();
-	
+	tstart = timer();
 	
 	/* Calculate h (the distance between each x value) given n (the number of bits to split the
 	input range into*/
 	h = (b - a) / (double) n;
 
-
-	#pragma omp parallel default(none), private(i, curr_x), shared(h, a, b, fn, n, sum)
+	#pragma omp parallel num_threads(t), default(none), private(i, curr_x), shared(h, a, b, fn, n, sum)
+	
 	/* Go from a to b in steps of h and stop when we get to b
 	We do this using a standard integer loop, and then calculating what x value
 	we are at inside the loop. This means that the loop variable is an int, which is
@@ -81,20 +81,40 @@ double integrate( double (*fn)(double), double a, double b, int n)
 		sum += h * ( ( (*fn)(curr_x) + (*fn)(curr_x - h) ) / 2);
 	}
 	
-	tend = omp_get_wtime();
+	tend = timer();
 	
-	printf("Time taken: %f\n", tend-tstart);
+	printf("%d, %d, %f\n", n, t, tend-tstart);
 	
 	return sum;
+}
+
+void run_all(void)
+{
+	printf("Using n = 1000\n");
+	printf("Integral of f1 = %f\n", integrate((double (*)(double))f1, -1, 3, 1000, 8));
+	printf("Integral of f2 = %f\n", integrate((double (*)(double))f2, 0, 2 * M_PI, 1000, 8));
+	printf("Integral of f3 = %f\n", integrate((double (*)(double))f3, -1 * M_PI, M_PI, 1000, 8));
+}
+
+void run_n_test(void)
+{
+	double res;
+	
+	int i;
+	
+	for (i = 0; i <= 5000; i+=10)
+	{
+		res = integrate((double (*)(double))f3, -1 * M_PI, M_PI, i, 1);
+		res = integrate((double (*)(double))f3, -1 * M_PI, M_PI, i, 8);
+	}
 }
 
 /* The main function */
 int main(void)
 {	
-	printf("Using n = 1000\n");
-	printf("Integral of f1 = %f\n", integrate((double (*)(double))f1, -1, 3, 1000));
-	printf("Integral of f2 = %f\n", integrate((double (*)(double))f2, 0, 2 * M_PI, 1000));
-	printf("Integral of f3 = %f\n", integrate((double (*)(double))f3, -1 * M_PI, M_PI, 1000));
+	run_n_test();	
+
+	
 
 	return 0;
 }
