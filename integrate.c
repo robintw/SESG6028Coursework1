@@ -1,5 +1,6 @@
 #include<stdio.h>
 #include<math.h>
+#include <string.h>
 #include<timer.h>
 #include<omp.h>
 
@@ -44,9 +45,11 @@ double f3(double x)
 }
 
 /* This function does the actual integration
-x: an array of x-values of the function
-y: an array of the corresponding y-values for each x-value
-n: the number of iterations to do
+*fn		A pointer to a function to intergrate
+a		The lower limit for integration
+b		The upper limit for integration
+n		The number of trapezia to use for integration
+t		The number of threads to use (given as an argument so that tests can easily be carried out)
 */
 double integrate( double (*fn)(double), double a, double b, int n, int t)
 {	
@@ -96,6 +99,7 @@ void run_all(void)
 	printf("Integral of f3 = %f\n", integrate((double (*)(double))f3, -1 * M_PI, M_PI, 1000, 8));
 }
 
+
 void run_n_test(void)
 {
 	double res;
@@ -109,12 +113,51 @@ void run_n_test(void)
 	}
 }
 
-/* The main function */
-int main(void)
-{	
-	run_n_test();	
+void run_scaling_test(void)
+{
+	int n = 100000; /* Set n to a large number */
+	int i;
+	for (i = 1; i <= 8; i++)
+	{
+		integrate((double (*)(double))f1, -1, 3, n, i);
+		integrate((double (*)(double))f2, 0, 2 * M_PI, n, i);
+		integrate((double (*)(double))f3, -1 * M_PI, M_PI, n, i);
+	}
+}
 
+/* The main function */
+int main(int argc, char *argv[])
+{
+	int i;
 	
+	if (argc == 1)
+	{
+	printf("SESG6028 Integration Coursework by Robin Wilson\n \
+	----------------------------------------------- \
+	\nNo command-line arguments specified.\n\nThe following options are available:\n \
+	full\t\tRun test of all functions given on coursework sheet\n \
+	ntest\t\tRun a test to see what value of n should be used as the if threshold\n \
+	scalingtest\tRun a test to determine the scaling of the code\n");
+    }
+
+	/* Process command line arguments */
+	for (i = 1; i < argc; i++)  /* Skip argv[0] (program name). */
+    {
+    	/* if strcmp returns 0 then the strings are identical */
+        if (strcmp(argv[i], "full") == 0)
+        {
+            run_all();
+        }
+        else if (strcmp(argv[i], "ntest") == 0)
+        {
+            run_n_test();
+        }
+        else if (strcmp(argv[i], "scalingtest") == 0)
+        {
+            run_scaling_test();
+        }
+
+    }	
 
 	return 0;
 }
