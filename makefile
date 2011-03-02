@@ -1,7 +1,7 @@
 # This task will be run by default whenever make is run with no arguments
 # It will create the default compile of the code, which should be used most of the time
 all:
-	# This compiles the integration code using OpenMP so it can be run it parallel
+	# This compiles the integration code using OpenMP so it can be run in parallel
 	# The arguments are:
 	# -W, -Wall, -pedantic		Warn me about everything possible that could be wrong!
 	# -std=c89					Compile using C according to the C89 standard (original ANSI C)
@@ -27,5 +27,5 @@ safe:
 	# As above for the serial version, with alterations as above
 	gcc -W -Wall -pedantic -std=c89 -lm -g -o serial_integrate -I. timer.c integrate.c
 	
-test:
-	./integrate
+test: all
+	./integrate unittest
