@@ -125,6 +125,32 @@ void run_scaling_test(void)
 	}
 }
 
+void run_unit_test(void)
+{
+	int n = 1000000;
+	
+	double calc_res1, calc_res2, calc_res3 = 0;
+	double anal_res1, anal_res2, anal_res3 = 0;
+	
+	calc_res1 = integrate((double (*)(double))f1, -1, 3, n, 8);
+	anal_res1 = 472 / (double) 3;
+	
+	
+	
+	calc_res2 = integrate((double (*)(double))f2, 0, 2 * M_PI, n, 8);
+	anal_res2 = 0.0;
+	
+	
+	
+	calc_res3 = integrate((double (*)(double))f3, -1 * M_PI, M_PI, n, 8);
+	anal_res3 = 2 - (pow(M_PI,2) / 2);
+	
+	printf("Unit test results:\n---------------\n");
+	printf("Function 1: %f\n", calc_res1 - anal_res1);
+	printf("Function 2: %f\n", calc_res2 - anal_res2);
+	printf("Function 3: %f\n", calc_res3 - anal_res3);
+}
+
 /* The main function */
 int main(int argc, char *argv[])
 {
@@ -139,6 +165,7 @@ int main(int argc, char *argv[])
 	ntest\t\tRun a test to see what value of n should be used as the if threshold\n \
 	scalingtest\tRun a test to determine the scaling of the code\n");
     }
+    
 
 	/* Process command line arguments */
 	for (i = 1; i < argc; i++)  /* Skip argv[0] (program name). */
@@ -155,6 +182,10 @@ int main(int argc, char *argv[])
         else if (strcmp(argv[i], "scalingtest") == 0)
         {
             run_scaling_test();
+        }
+        else if (strcmp(argv[i], "unittest") == 0)
+        {
+            run_unit_test();
         }
 
     }	
