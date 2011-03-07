@@ -28,4 +28,12 @@ safe:
 	gcc -W -Wall -pedantic -std=c89 -lm -g -o serial_integrate -I. timer.c integrate.c
 	
 test: all
-	./integrate unittest
+	@echo XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	@echo Unit Tests
+	@echo XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+	@echo Parallel version
+	@echo ----------------
+	@./integrate unittest
+	@echo Serial version
+	@echo --------------
+	@./serial_integrate unittest
