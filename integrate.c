@@ -1,8 +1,12 @@
 #include<stdio.h>
 #include<math.h>
-#include <string.h>
+#include<string.h>
 #include<stdlib.h>
+
+/* Include Ian Bush's timing routines */
 #include<timer.h>
+
+/* Include OpenMP library routines */
 #include<omp.h>
 
 /* The constant M_PI isn't included in the C89 standard, so we define it here - checking first
@@ -55,11 +59,13 @@ double f3(double x)
 }
 
 /* This function does the actual integration
-*fn		A pointer to a function to intergrate
-a		The lower limit for integration
-b		The upper limit for integration
-n		The number of trapezia to use for integration
-t		The number of threads to use (given as an argument so that tests can easily be carried out)
+*fn			A pointer to a function to intergrate
+a			The lower limit for integration
+b			The upper limit for integration
+n			The number of trapezia to use for integration
+t			The number of threads to use (given as an argument so that tests can easily be carried out)
+print_times	Takes a #define'd constant of either PRINT_TIMES or NO_PRINT_TIMES to specify whether timing
+			information should be printed or not
 */
 double integrate( double (*fn)(double), double a, double b, int n, int t, int print_times)
 {	
@@ -119,25 +125,43 @@ double integrate( double (*fn)(double), double a, double b, int n, int t, int pr
 	return sum;
 }
 
+/* Integrate a function using the adaptive scheme discussed in the report
+*fn			A pointer to a function to intergrate
+a			The lower limit for integration
+b			The upper limit for integration
+start_n 	The number of trapezia to use for the first integration
+epsilon		The accuracy required for the final result
+n_factor	The factor to change n by each iteration (new_n = n * n_factor)
+t			The number of threads to use (given as an argument so that tests can easily be carried out)
+*/
 double adaptive_integrate(double (*fn)(double), double a, double b, int start_n, double epsilon, int n_factor, int t)
 {
-	double prev_res = 0;
-	double curr_res = 0;
-	double diff = 10000;
-	int n = start_n;
-	double tstart = 0;
-	double tend = 0;
+	double prev_res = 0; /* The previous result, initialised to zero */
+	double curr_res = 0; /* The current result, initialised to zero */
+	double diff = 10000; /* The difference - initialised to a large number */
+	int n = start_n; /* The current n value to use - initialised to the user-specified start value */
+	
+	double tstart = 0; /* The starting time */
+	double tend = 0; /* The ending time */
 	
 	/* Record the start time */
 	tstart = timer();
 	
+	/* While the difference between the last two integrations is larger than the user-specified
+	accuracy (epsilon) */
 	while (diff > epsilon)
 	{
+		/* Record the current result */
 		prev_res = curr_res;
+		
+		/* Run the integration (telling it not to print any timing information */
 		curr_res = integrate((*fn), a, b, n, t, NO_PRINT_TIMES);
 		printf("Integrating with n = %d\n\tResult = %f\n", n, curr_res);
+		
+		/* Compute the next n value */
 		n = n * n_factor;
 		
+		/* Get the absolute difference between the previous two integrations */
 		diff = fabs(prev_res - curr_res);
 		
 		printf("\tDifference between previous results = %f\n", diff);
@@ -154,11 +178,13 @@ double adaptive_integrate(double (*fn)(double), double a, double b, int start_n,
 	return curr_res;
 }
 
+/* Test the adaptive integration scheme */
 void run_adaptive_test(void)
 {
 	adaptive_integrate((double (*)(double))f1, -1, 3, 10, 0.0001, 10, 8);
 }
 
+/* Integrate all of the test functions and display the results */
 void run_all(void)
 {
 	printf("Using n = 1000\n");
@@ -167,7 +193,7 @@ void run_all(void)
 	printf("Integral of f3 = %f\n", integrate((double (*)(double))f3, -1 * M_PI, M_PI, 10000, 8, NO_PRINT_TIMES));
 }
 
-
+/* Run the test to calculate what value of n should be used in the omp parallel if statement */
 void run_n_test(void)
 {
 	double res;
@@ -181,6 +207,7 @@ void run_n_test(void)
 	}
 }
 
+/* Run a test to produce the data used for the scaling graphs */
 void run_scaling_test(void)
 {
 	int n = 100000; /* Set n to a large number */
@@ -193,6 +220,8 @@ void run_scaling_test(void)
 	}
 }
 
+/* Run a simple test to calculate the difference between the numerical integration results and
+analytical results */
 void run_unit_test(void)
 {
 	/* Use a large n to get values as accurate as possible */
@@ -232,12 +261,12 @@ int main(int argc, char *argv[])
 	{
 	printf("SESG6028 Integration Coursework by Robin Wilson\n \
 	----------------------------------------------- \
-	\nNo command-line arguments specified.\n\nThe following options are available:\n \
+	\nThe following options are available:\n \
 	full\t\tRun test of all functions given on coursework sheet\n \
-	unittest\t\tRuns a simple test to ensure that the functions are giving the right results\n \
+	unittest\tRuns a simple test to ensure that the functions are giving the right results\n \
 	ntest\t\tRun a test to see what value of n should be used as the if threshold\n \
 	scalingtest\tRun a test to determine the scaling of the code\n \
-	adaptivetest\tRuns a test of the adaptive integration system using Function 1\n");
+	adaptivetest\tRuns a test of the adaptive integration system\n");
     }
     
 
